@@ -9,9 +9,12 @@ public class InputManager : MonoBehaviour
     [SerializeField]
     private MovementController _movementController;
 
+    [SerializeField]
+    private ArmMovement _armController;
+
     private Vector2 _movementInput;
     //private bool _interact;
-    private (float x, float y) _moveSpeed;
+    private bool _aiming;
 
     private void OnEnable()
     {
@@ -20,6 +23,10 @@ public class InputManager : MonoBehaviour
             _playerInputs = new PlayerInputs();
 
             _playerInputs.Player.Movement.performed += i => _movementInput = i.ReadValue<Vector2>();
+            _playerInputs.Player.Jump.performed += i => _movementController.Jump();
+            _playerInputs.Player.Jump.canceled += i => _movementController.StopJump();
+            _playerInputs.Player.Aim.started += i => _armController._isAiming = true;
+            _playerInputs.Player.Aim.canceled += i => _armController._isAiming = false;
             //_playerInputs.PlayerInteraction.Interact.started += i => _interact = true;
         }
 
@@ -37,13 +44,9 @@ public class InputManager : MonoBehaviour
         HandleInteractInput();
     }
 
-    public (float, float) HandleMovementInput()
+    public void HandleMovementInput()
     {
-        _movementController.HandleMovement(_movementInput.x, _movementInput.y);
-
-        _moveSpeed.x = _movementInput.x;
-        _moveSpeed.y = _movementInput.y;
-        return _moveSpeed;
+        _movementController.HandleMovement(_movementInput.x);
     }
 
     private void HandleInteractInput()
